@@ -39,7 +39,7 @@ jobs:
       - name: Login to ACR
         run: az acr login --name contregsrinidev2
 
-      - name: Check DockerFile exists
+      - name: Check Dockerfile exists
         run: ls -la
 
       - name: Build Docker Image
