@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true           # ← Fixes Node.js warning
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,6 +15,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
+
+      - name: Debug - Check Secrets Exist
+        run: |
+          echo "CLIENT_ID is set: ${{ secrets.AZURE_CLIENT_ID != '' }}"
+          echo "SUBSCRIPTION_ID is set: ${{ secrets.AZURE_SUBSCRIPTION_ID != '' }}"
+          echo "TENANT_ID is set: ${{ secrets.AZURE_TENANT_ID != '' }}"
 
       - name: Azure Login
         uses: azure/login@v3
@@ -24,12 +33,18 @@ jobs:
               "tenantId":"${{ secrets.AZURE_TENANT_ID }}"
             }
 
+      - name: Verify Azure Account
+        run: az account show
+
       - name: Login to ACR
         run: az acr login --name contregsrinidev2
 
+      - name: Check Dockerfile exists
+        run: ls -la
+
       - name: Build Docker Image
         run: |
-          docker build -t contregsrinidev2.azurecr.io/azure-loader:v1 .
+          docker build -t contregsrinidev2.azurecr.io/azure-loader:v1 
 
       - name: Push Docker Image
         run: |
